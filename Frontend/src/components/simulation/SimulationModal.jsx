@@ -58,9 +58,10 @@ function SimulationModal({ isOpen, onClose, project }) {
     try {
       const response = await simulationAPI.run(project._id, params);
       
-      // Results might come via Socket.io or directly from API
-      if (response.data.data) {
+      // Results come from API response
+      if (response.data && response.data.success) {
         setResults(response.data.data);
+        setLoading(false);
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Simulation failed');
