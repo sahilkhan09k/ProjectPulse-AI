@@ -6,15 +6,17 @@ const asyncHandler = require('../utils/asyncHandler');
 const getCookieOptions = () => ({
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production', // HTTPS only in production
-  sameSite: 'strict',
-  maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // 'none' for cross-origin in production
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  path: '/'
 });
 
 const getAccessTokenCookieOptions = () => ({
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict',
-  maxAge: 15 * 60 * 1000 // 15 minutes
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // 'none' for cross-origin in production
+  maxAge: 15 * 60 * 1000, // 15 minutes
+  path: '/'
 });
 
 // Register new user
