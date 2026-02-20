@@ -54,17 +54,25 @@ function SimulationModal({ isOpen, onClose, project }) {
 
     setLoading(true);
     setError(null);
+    setResults(null); // Clear previous results
 
     try {
       const response = await simulationAPI.run(project._id, params);
       
+      console.log('Simulation API response:', response.data);
+      
       // Results come from API response
-      if (response.data && response.data.success) {
+      if (response.data && response.data.success && response.data.data) {
+        console.log('Setting results:', response.data.data);
         setResults(response.data.data);
-        setLoading(false);
+      } else {
+        console.error('Invalid response structure:', response.data);
+        setError('Invalid response from server');
       }
     } catch (err) {
+      console.error('Simulation error:', err);
       setError(err.response?.data?.message || 'Simulation failed');
+    } finally {
       setLoading(false);
     }
   };
