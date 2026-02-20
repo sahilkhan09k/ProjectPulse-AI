@@ -4,8 +4,7 @@ const taskSchema = new mongoose.Schema({
   projectId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Project',
-    required: [true, 'Project ID is required'],
-    index: true
+    required: [true, 'Project ID is required']
   },
   title: {
     type: String,
@@ -31,8 +30,7 @@ const taskSchema = new mongoose.Schema({
   assigneeId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: [true, 'Assignee is required'],
-    index: true
+    required: [true, 'Assignee is required']
   },
   dueDate: {
     type: Date,

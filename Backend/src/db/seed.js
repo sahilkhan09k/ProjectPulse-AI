@@ -17,12 +17,24 @@ const seedDatabase = async () => {
   try {
     console.log('🌱 Starting database seeding...');
 
-    // Check if database is already seeded
-    const existingUsers = await User.countDocuments();
-    if (existingUsers > 0) {
+    // Check if database is already seeded (unless force flag is set)
+    const forceReseed = process.argv.includes('--force');
+    const existingProjects = await Project.countDocuments();
+    console.log(`DEBUG: Found ${existingProjects} existing projects`);
+    
+    if (existingProjects > 0 && !forceReseed) {
       console.log('⚠️  Database already contains data. Skipping seed.');
-      console.log('   To re-seed, please clear the database first.');
+      console.log('   To re-seed, run: npm run seed -- --force');
       return;
+    }
+    
+    if (forceReseed && existingProjects > 0) {
+      console.log('🗑️  Force flag detected. Clearing existing data...');
+      await User.deleteMany({});
+      await Project.deleteMany({});
+      await Task.deleteMany({});
+      await RiskAlert.deleteMany({});
+      console.log('✅ Existing data cleared');
     }
 
     // Create 6 users
@@ -100,7 +112,9 @@ const seedDatabase = async () => {
         assigneeId: users[i % users.length]._id,
         dueDate: new Date(now.getTime() + (7 + i) * 24 * 60 * 60 * 1000),
         priority: 'high',
-        estimatedHours: 8
+        estimatedHours: 8,
+        updatedAt: now,
+        createdAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000)
       });
     }
 
@@ -130,7 +144,9 @@ const seedDatabase = async () => {
         assigneeId: users[0]._id,
         dueDate: new Date(now.getTime() + (3 + i) * 24 * 60 * 60 * 1000),
         priority: ['low', 'medium', 'high'][i % 3],
-        estimatedHours: 4
+        estimatedHours: 4,
+        updatedAt: now,
+        createdAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000)
       });
     }
 
@@ -144,7 +160,9 @@ const seedDatabase = async () => {
         assigneeId: users[1]._id,
         dueDate: new Date(now.getTime() + (4 + i) * 24 * 60 * 60 * 1000),
         priority: ['medium', 'high'][i % 2],
-        estimatedHours: 5
+        estimatedHours: 5,
+        updatedAt: now,
+        createdAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000)
       });
     }
 
@@ -183,8 +201,8 @@ const seedDatabase = async () => {
       });
     }
 
-    // Create all tasks
-    const createdTasks = await Task.create(tasks);
+    // Create all tasks using insertMany to preserve manual timestamps
+    const createdTasks = await Task.insertMany(tasks, { timestamps: false });
     console.log(`✅ Created ${createdTasks.length} tasks`);
 
     // Calculate reliability score

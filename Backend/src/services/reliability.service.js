@@ -27,15 +27,19 @@ const calculateBlockerFrequency = (tasks) => {
 const calculateStagnationRate = (tasks) => {
   if (!tasks || tasks.length === 0) return 0;
   
+  // Only check non-done tasks for stagnation
+  const activeTasks = tasks.filter(t => t.status !== 'done');
+  if (activeTasks.length === 0) return 0;
+  
   const now = new Date();
   const staleThreshold = 48 * 60 * 60 * 1000; // 48 hours in milliseconds
   
-  const staleCount = tasks.filter(t => {
+  const staleCount = activeTasks.filter(t => {
     const timeSinceUpdate = now - new Date(t.updatedAt);
     return timeSinceUpdate > staleThreshold;
   }).length;
   
-  return staleCount / tasks.length;
+  return staleCount / activeTasks.length;
 };
 
 /**
