@@ -1,17 +1,21 @@
 const REQUIRED_ENV_VARS = [
   'PORT',
   'MONGODB_URI',
-  'CORS_ORIGIN',
-  'CLOUDINARY_CLOUD_NAME',
-  'CLOUDINARY_API_KEY',
-  'CLOUDINARY_API_SECRET',
-  'ACCESS_TOKEN_SECRET',
-  'REFRESH_TOKEN_SECRET',
-  'ACCESS_TOKEN_EXPIRES_IN',
-  'REFRESH_TOKEN_EXPIRES_IN'
+  'JWT_ACCESS_SECRET',
+  'JWT_REFRESH_SECRET',
+  'JWT_ACCESS_EXPIRES_IN',
+  'JWT_REFRESH_EXPIRES_IN',
+  'FRONTEND_URL'
 ];
 
-export const validateEnv = () => {
+const OPTIONAL_ENV_VARS = [
+  'GROQ_API_KEY', // Optional - will use fallback recommendations if not provided
+  'GROQ_API_URL',
+  'GROQ_MODEL',
+  'LOG_LEVEL'
+];
+
+const validateEnv = () => {
   const missing = REQUIRED_ENV_VARS.filter(varName => !process.env[varName]);
   
   if (missing.length > 0) {
@@ -22,5 +26,15 @@ export const validateEnv = () => {
     process.exit(1);
   }
   
+  // Warn about missing optional variables
+  const missingOptional = OPTIONAL_ENV_VARS.filter(varName => !process.env[varName]);
+  if (missingOptional.length > 0) {
+    console.warn('⚠️  Optional environment variables not set:');
+    missingOptional.forEach(varName => console.warn(`   - ${varName}`));
+    console.warn('Some features may use fallback behavior.\n');
+  }
+  
   console.log('✅ Environment variables validated successfully');
 };
+
+module.exports = { validateEnv };

@@ -1,1 +1,3 @@
-export const DB_NAME = "SAHIL";
+const DB_NAME = "projectpulse";
+
+module.exports = { DB_NAME };
