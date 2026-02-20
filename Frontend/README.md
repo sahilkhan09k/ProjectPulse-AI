@@ -1,132 +1,250 @@
-# Frontend - MERN Stack Application
+# ProjectPulse AI - Frontend
 
-## Overview
+A modern, real-time dashboard for project reliability monitoring and failure simulation.
 
-This is the frontend client for a MERN (MongoDB, Express, React, Node.js) stack application. Built with React 19 and Vite, it provides a modern, fast development experience with Hot Module Replacement (HMR).
+## Features
 
-## Technology Stack
+- **Real-Time Dashboard**: Live updates via Socket.io for scores, alerts, and simulations
+- **Reliability Monitoring**: Animated circular progress with color-coded health indicators
+- **Health Metrics**: Visual display of blocker frequency, stagnation rate, overload ratio, and velocity variance
+- **Risk Alerts**: Expandable alert cards with confidence levels and recommended actions
+- **Team Workload**: Horizontal bar charts showing task distribution and overload indicators
+- **Task Management**: Filterable and sortable task list with status badges
+- **Failure Simulation**: Interactive modal with parameter sliders and AI recommendations
+- **Authentication**: Secure JWT-based auth with HTTP-only cookies
 
-- **React 19** - JavaScript library for building user interfaces
-- **Vite** - Next-generation frontend build tool
-- **Tailwind CSS v4** - Utility-first CSS framework
-- **ESLint** - Code quality and style checking
+## Tech Stack
 
-## Setup Instructions
+- **Framework**: React 19 with Vite
+- **Styling**: Tailwind CSS v4
+- **Routing**: React Router DOM
+- **State Management**: React Hooks + Context API
+- **Real-Time**: Socket.io Client
+- **HTTP Client**: Axios
+- **Animations**: Framer Motion
+- **Charts**: Recharts
+- **Icons**: Heroicons
+- **Testing**: Vitest + React Testing Library
 
-Follow these steps to set up the frontend locally:
+## Getting Started
 
-### 1. Navigate to Frontend directory
-```bash
-cd Frontend
-```
+### Prerequisites
 
-### 2. Install dependencies
+- Node.js (v16 or higher)
+- npm or yarn
+- Backend server running on http://localhost:5000
+
+### Installation
+
+1. Install dependencies:
 ```bash
 npm install
 ```
 
-### 3. Configure backend API URL (if needed)
-If your backend is running on a different port or domain, you may need to configure the API endpoint in your application. The default backend URL is `http://localhost:5000`.
+2. Create `.env` file (copy from `.env.example`):
+```bash
+cp .env.example .env
+```
 
-### 4. Start development server
+3. Configure environment variables in `.env`:
+```env
+VITE_API_URL=http://localhost:5000/api
+VITE_SOCKET_URL=http://localhost:5000
+```
+
+### Running the App
+
+Development mode (with hot reload):
 ```bash
 npm run dev
 ```
 
-The application will start on `http://localhost:5173` (Vite's default port).
+The app will start on `http://localhost:5173`
 
-## Available Scripts
+Build for production:
+```bash
+npm run build
+```
 
-- `npm run dev` - Start the development server with HMR
-- `npm run build` - Build the application for production
-- `npm run preview` - Preview the production build locally
-- `npm run lint` - Run ESLint to check code quality
+Preview production build:
+```bash
+npm run preview
+```
+
+### Testing
+
+Run tests:
+```bash
+npm test
+```
+
+Run tests with UI:
+```bash
+npm run test:ui
+```
+
+Run tests with coverage:
+```bash
+npm run test:coverage
+```
+
+### Linting
+
+Run linter:
+```bash
+npm run lint
+```
 
 ## Project Structure
 
 ```
 Frontend/
 ├── src/
-│   ├── App.jsx          # Main application component
-│   ├── main.jsx         # Application entry point
-│   └── index.css        # Global styles (Tailwind CSS)
-├── public/              # Static assets
-│   └── vite.svg         # Vite logo
-├── index.html           # HTML template
-├── vite.config.js       # Vite configuration
-├── eslint.config.js     # ESLint configuration
-├── package.json         # Project dependencies and scripts
-└── README.md            # This file
+│   ├── components/
+│   │   ├── auth/              # Authentication components
+│   │   ├── common/            # Reusable UI components
+│   │   ├── dashboard/         # Dashboard-specific components
+│   │   └── simulation/        # Simulation modal components
+│   ├── contexts/              # React contexts (Auth, Socket)
+│   ├── hooks/                 # Custom React hooks
+│   ├── pages/                 # Page components
+│   ├── services/              # API service layer
+│   ├── utils/                 # Utility functions
+│   ├── test/                  # Test setup
+│   ├── App.jsx                # Main app component
+│   ├── main.jsx               # Entry point
+│   └── index.css              # Global styles
+├── public/                    # Static assets
+├── .env.example               # Environment variables template
+├── vite.config.js             # Vite configuration
+├── vitest.config.js           # Vitest configuration
+└── package.json               # Dependencies and scripts
 ```
 
-### Folder Descriptions
+## Key Components
 
-- **src/** - Application source code (components, styles, utilities)
-- **public/** - Static assets that are served directly
-- **index.html** - Main HTML file that loads the React application
+### Dashboard Components
 
-## Backend Connection
+- **ReliabilityScoreCard**: Animated circular progress indicator with color coding
+- **MetricsGrid**: 2x2 grid displaying health metrics with icons
+- **RiskAlertsPanel**: List of expandable risk alert cards with real-time updates
+- **WorkloadSummary**: Horizontal bar chart showing team workload distribution
+- **TaskList**: Filterable and sortable table of project tasks
+- **Header**: Navigation bar with project info and user menu
 
-This frontend application connects to the backend API server. 
+### Simulation Components
 
-### Default Configuration
-- **Backend URL**: `http://localhost:5000`
-- **CORS**: The backend is configured to accept requests from the frontend origin
+- **SimulationModal**: Full-screen modal for failure simulation
+- **SimulationControls**: Three range sliders for simulation parameters
+- **SimulationResults**: Before/after comparison with Recharts visualization
+- **AIRecommendations**: AI-generated recovery suggestions
 
-### Configuring API Endpoint
+### Common Components
 
-To change the backend API URL, update the API base URL in your application code where API calls are made. You may want to use environment variables for different environments:
+- **Button**: Reusable button with variants (primary, secondary, ghost, danger)
+- **Input**: Form input with validation states and helper text
+- **Modal**: Generic modal component with backdrop and animations
+- **Spinner**: Loading spinner in multiple sizes
+- **Toast**: Toast notification system with auto-dismiss
+- **ProtectedRoute**: Route wrapper for authenticated pages
 
-```javascript
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+## Authentication Flow
+
+1. User visits `/login` or `/register`
+2. Credentials sent to backend API
+3. Backend returns JWT tokens in HTTP-only cookies
+4. Frontend stores user data in AuthContext
+5. Protected routes check authentication status
+6. Axios interceptor handles token refresh on 401 errors
+
+## Real-Time Updates
+
+The app uses Socket.io for real-time updates:
+
+- **score:updated**: Reliability score changes
+- **simulation:completed**: Simulation results ready
+- **risk:created**: New risk alert generated
+- **risk:resolved**: Risk alert resolved
+- **task:updated**: Task status changed
+
+## API Integration
+
+All API calls go through the centralized `api.js` service:
+
+- **authAPI**: Authentication endpoints
+- **projectsAPI**: Project CRUD operations
+- **tasksAPI**: Task management
+- **risksAPI**: Risk alert operations
+- **simulationAPI**: Failure simulation
+- **aiAPI**: AI recommendations
+
+## Styling
+
+The app uses Tailwind CSS v4 with custom configuration:
+
+- Responsive design (mobile-first)
+- Color-coded health indicators (green, yellow, red)
+- Smooth animations with Framer Motion
+- Consistent spacing and typography
+- Dark mode support (future enhancement)
+
+## Performance Optimizations
+
+- Code splitting with React.lazy (future enhancement)
+- Memoization with useMemo and useCallback
+- Debounced search and filters (future enhancement)
+- Optimized re-renders with React.memo (future enhancement)
+- Efficient Socket.io event handling
+
+## Browser Support
+
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+
+## Demo Credentials
+
+```
+Email: alice@projectpulse.demo
+Password: Demo123!
 ```
 
-Create a `.env` file in the Frontend directory:
-```
-VITE_API_URL=http://localhost:5000
-```
+Other demo users:
+- bob@projectpulse.demo
+- carol@projectpulse.demo
+- david@projectpulse.demo
+- eve@projectpulse.demo
+- frank@projectpulse.demo
 
-### CORS Requirements
+All passwords: `Demo123!`
 
-Ensure the backend's `CORS_ORIGIN` environment variable includes your frontend URL (e.g., `http://localhost:5173` for development).
+## Troubleshooting
 
-## Development
+### Connection Issues
 
-### Hot Module Replacement (HMR)
+If Socket.io connection fails:
+1. Check backend is running on http://localhost:5000
+2. Verify CORS settings in backend
+3. Check browser console for errors
+4. Ensure JWT token is valid
 
-Vite provides fast HMR out of the box. Changes to your React components will be reflected instantly without losing component state.
+### Build Issues
 
-### React Plugins
-
-This template uses [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) which uses Babel for Fast Refresh.
-
-## Building for Production
-
-To create a production build:
-
-```bash
-npm run build
-```
-
-The optimized files will be generated in the `dist/` directory, ready to be deployed to any static hosting service.
-
-To preview the production build locally:
-
-```bash
-npm run preview
-```
+If build fails:
+1. Clear node_modules: `rm -rf node_modules`
+2. Clear cache: `npm cache clean --force`
+3. Reinstall: `npm install`
+4. Try again: `npm run build`
 
 ## Contributing
 
-When adding new features:
-
-1. Create components in the `src/` directory
-2. Follow React best practices and hooks guidelines
-3. Ensure code passes ESLint checks (`npm run lint`)
-4. Test thoroughly in development mode before building
-5. Keep components modular and reusable
+1. Follow the existing code style
+2. Write tests for new features
+3. Update documentation
+4. Test on multiple browsers
+5. Ensure accessibility compliance
 
 ## License
 
 ISC
-

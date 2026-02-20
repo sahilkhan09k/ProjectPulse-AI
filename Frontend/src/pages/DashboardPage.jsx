@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useSocket } from '../hooks/useSocket';
+import { useToast } from '../hooks/useToast';
 import { projectsAPI } from '../services/api';
 import Header from '../components/dashboard/Header';
 import ReliabilityScoreCard from '../components/dashboard/ReliabilityScoreCard';
@@ -8,17 +9,39 @@ import RiskAlertsPanel from '../components/dashboard/RiskAlertsPanel';
 import WorkloadSummary from '../components/dashboard/WorkloadSummary';
 import TaskList from '../components/dashboard/TaskList';
 import SimulationModal from '../components/simulation/SimulationModal';
+import { ToastContainer } from '../components/common/Toast';
 
 function DashboardPage() {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isSimulationOpen, setIsSimulationOpen] = useState(false);
+  const [scoreUpdated, setScoreUpdated] = useState(false);
   const { socket, connected, joinProjectRoom, leaveProjectRoom } = useSocket();
+  const { toasts, removeToast, success, info, warning } = useToast();
+
+  // Memoize fetchProject to prevent recreation on every render
+  const fetchProject = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await projectsAPI.getAll();
+      const projects = response.data.data;
+      
+      if (projects.length > 0) {
+        setProject(projects[0]); // Use first project for demo
+      } else {
+        setError('No projects found');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to fetch project');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     fetchProject();
-  }, []);
+  }, [fetchProject]);
 
   // Join project room when project is loaded and socket is connected
   useEffect(() => {
@@ -41,33 +64,57 @@ function DashboardPage() {
           reliabilityScore: data.score,
           healthMetrics: data.metrics
         }));
+        
+        // Add visual feedback
+        setScoreUpdated(true);
+        setTimeout(() => setScoreUpdated(false), 2000);
+        
+        // Show toast notification
+        const scoreDiff = data.score - project.reliabilityScore;
+        if (Math.abs(scoreDiff) > 1) {
+          if (scoreDiff > 0) {
+            success(`Reliability score improved to ${Math.round(data.score)}`);
+          } else {
+            warning(`Reliability score decreased to ${Math.round(data.score)}`);
+          }
+        }
+      }
+    };
+
+    const handleSimulationCompleted = (data) => {
+      if (project && data.projectId === project._id) {
+        info('Simulation completed successfully');
+      }
+    };
+
+    const handleRiskCreated = (data) => {
+      if (project && data.projectId === project._id) {
+        warning('New risk alert detected');
+      }
+    };
+
+    const handleRiskResolved = (data) => {
+      if (project && data.projectId === project._id) {
+        success('Risk alert resolved');
       }
     };
 
     socket.on('score:updated', handleScoreUpdate);
+    socket.on('simulation:completed', handleSimulationCompleted);
+    socket.on('risk:created', handleRiskCreated);
+    socket.on('risk:resolved', handleRiskResolved);
 
     return () => {
       socket.off('score:updated', handleScoreUpdate);
+      socket.off('simulation:completed', handleSimulationCompleted);
+      socket.off('risk:created', handleRiskCreated);
+      socket.off('risk:resolved', handleRiskResolved);
     };
-  }, [socket, project]);
+  }, [socket, project, success, warning, info]);
 
-  const fetchProject = async () => {
-    try {
-      setLoading(true);
-      const response = await projectsAPI.getAll();
-      const projects = response.data.data;
-      
-      if (projects.length > 0) {
-        setProject(projects[0]); // Use first project for demo
-      } else {
-        setError('No projects found');
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch project');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Memoize modal handlers
+  const handleOpenSimulation = useCallback(() => setIsSimulationOpen(true), []);
+  const handleCloseSimulation = useCallback(() => setIsSimulationOpen(false), []);
 
   if (loading) {
     return (
@@ -129,7 +176,9 @@ function DashboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column - Score and Metrics */}
             <div className="lg:col-span-1 space-y-6">
-              <ReliabilityScoreCard score={project.reliabilityScore} />
+              <div className={scoreUpdated ? 'animate-pulse' : ''}>
+                <ReliabilityScoreCard score={project.reliabilityScore} />
+              </div>
               <MetricsGrid metrics={project.healthMetrics} />
             </div>
 
@@ -149,7 +198,7 @@ function DashboardPage() {
 
       {/* Simulation Button - Fixed Bottom Right */}
       <button
-        onClick={() => setIsSimulationOpen(true)}
+        onClick={handleOpenSimulation}
         className="fixed bottom-6 right-6 px-6 py-3 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 hover:shadow-xl transition-all duration-200 flex items-center space-x-2 z-40"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -161,9 +210,12 @@ function DashboardPage() {
       {/* Simulation Modal */}
       <SimulationModal
         isOpen={isSimulationOpen}
-        onClose={() => setIsSimulationOpen(false)}
+        onClose={handleCloseSimulation}
         project={project}
       />
+
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }
