@@ -20,6 +20,6 @@ yarn-error.log*
 .env.local
 .env.*.local
 
-# Local documentation (not for GitHub)
-Readme.md
-ProjectPulseAI_20Day_Plan.docx
+# Local documentation (not for GitHub) - case sensitive
+/Readme.md
+/ProjectPulseAI_20Day_Plan.docx
