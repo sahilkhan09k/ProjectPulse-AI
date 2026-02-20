@@ -1,208 +1,195 @@
-# Backend - MERN Stack Application
+# ProjectPulse AI - Backend
 
-## Overview
+A reliability-first project intelligence platform that predicts and prevents project failures through real-time analytics, AI-powered recommendations, and failure simulation capabilities.
 
-This is the backend server for a MERN (MongoDB, Express, React, Node.js) stack application. The server provides RESTful API endpoints and handles authentication, file uploads, and database operations.
+## Features
 
-## Technology Stack
+- **Reliability Score Calculation**: Real-time project health monitoring with weighted metrics
+- **Risk Detection**: Automatic alert generation when reliability falls below threshold
+- **Failure Simulation**: In-memory "what-if" scenario modeling
+- **AI Recommendations**: GROQ-powered recovery suggestions with fallback support
+- **Real-Time Updates**: Socket.io integration for live dashboard updates
+- **JWT Authentication**: Secure access/refresh token system with HTTP-only cookies
 
-- **Node.js** - JavaScript runtime environment
-- **Express.js** - Web application framework
-- **MongoDB** - NoSQL database
-- **Mongoose** - MongoDB object modeling
-- **JWT (jsonwebtoken)** - Authentication and authorization
-- **Cloudinary** - Cloud-based image and video management
-- **Multer** - Middleware for handling multipart/form-data (file uploads)
-- **CORS** - Cross-Origin Resource Sharing support
-- **dotenv** - Environment variable management
+## Tech Stack
 
-## Environment Variables
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Database**: MongoDB with Mongoose ODM
+- **Authentication**: JWT (access + refresh tokens)
+- **Real-time**: Socket.io
+- **AI**: GROQ API (Llama 3.1)
+- **Validation**: express-validator
 
-The application requires the following environment variables to be configured in a `.env` file:
+## Getting Started
 
-### Server Configuration
-- `PORT` - Server port number (default: 5000)
+### Prerequisites
 
-### Database Configuration
-- `MONGODB_URI` - MongoDB connection string (e.g., mongodb+srv://username:password@cluster.mongodb.net)
+- Node.js (v16 or higher)
+- MongoDB (local or Atlas)
+- npm or yarn
 
-### CORS Configuration
-- `CORS_ORIGIN` - Allowed CORS origins (e.g., * for all origins or specific URL)
+### Installation
 
-### Cloudinary Configuration (File Uploads)
-- `CLOUDINARY_CLOUD_NAME` - Your Cloudinary cloud name
-- `CLOUDINARY_API_KEY` - Your Cloudinary API key
-- `CLOUDINARY_API_SECRET` - Your Cloudinary API secret
-
-### JWT Authentication Configuration
-- `ACCESS_TOKEN_SECRET` - Secret key for access tokens (minimum 64 characters recommended)
-- `REFRESH_TOKEN_SECRET` - Secret key for refresh tokens (minimum 64 characters recommended)
-- `ACCESS_TOKEN_EXPIRES_IN` - Access token expiration time (e.g., 45m, 1h)
-- `REFRESH_TOKEN_EXPIRES_IN` - Refresh token expiration time (e.g., 7d, 30d)
-
-### Optional API Keys
-- `GROQ_API_KEY` - API key for GROQ AI service
-- `RESEND_API_KEY` - API key for Resend email service
-
-**Note:** See `.env.example` for a template with placeholder values.
-
-## Setup Instructions
-
-Follow these steps to set up the backend locally:
-
-### 1. Clone the repository
-```bash
-git clone <repository-url>
-cd Backend
-```
-
-### 2. Install dependencies
+1. Install dependencies:
 ```bash
 npm install
 ```
 
-### 3. Create environment file
-Copy the `.env.example` file to create your own `.env` file:
+2. Create `.env` file (copy from `.env.example`):
 ```bash
 cp .env.example .env
 ```
 
-### 4. Configure environment variables
-Open the `.env` file and replace all placeholder values with your actual configuration:
-- Set up a MongoDB database (MongoDB Atlas or local)
-- Create a Cloudinary account and get your credentials
-- Generate secure random strings for JWT secrets
-- Configure other API keys as needed
+3. Configure environment variables in `.env`:
+```env
+PORT=5000
+MONGODB_URI=your_mongodb_connection_string
+JWT_ACCESS_SECRET=your_access_secret_key
+JWT_REFRESH_SECRET=your_refresh_secret_key
+JWT_ACCESS_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+FRONTEND_URL=http://localhost:5173
+GROQ_API_KEY=your_groq_api_key (optional)
+```
 
-### 5. Start the development server
+### Database Seeding
+
+Seed the database with demo data (6 users, 1 project, 30 tasks):
+
+```bash
+npm run seed
+```
+
+**Demo Credentials:**
+- Email: `alice@projectpulse.demo` (or any user from seed data)
+- Password: `Demo123!`
+
+The seeder creates a project with a reliability score in the 65-70 range to demonstrate both healthy and at-risk states.
+
+### Running the Server
+
+Development mode (with auto-reload):
 ```bash
 npm run dev
 ```
 
-The server will start on the port specified in your `.env` file (default: 5000).
+Production mode:
+```bash
+npm start
+```
 
-## Available Scripts
+The server will start on `http://localhost:5000`
 
-- `npm run dev` - Start the development server with auto-reload (using nodemon)
-- `npm start` - Start the production server
-- `npm run lint` - Run ESLint to check code quality
-- `npm run lint:fix` - Automatically fix ESLint issues
+### API Endpoints
 
+#### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login user
+- `POST /api/auth/refresh` - Refresh access token
+- `POST /api/auth/logout` - Logout user
+- `GET /api/auth/me` - Get current user
+
+#### Projects
+- `GET /api/projects` - Get all projects
+- `GET /api/projects/:id` - Get project by ID
+- `POST /api/projects` - Create project
+- `PUT /api/projects/:id` - Update project
+- `DELETE /api/projects/:id` - Delete project
+
+#### Tasks
+- `GET /api/tasks?projectId=:id` - Get tasks (filtered by project)
+- `GET /api/tasks/:id` - Get task by ID
+- `POST /api/tasks` - Create task
+- `PUT /api/tasks/:id` - Update task
+- `DELETE /api/tasks/:id` - Delete task
+- `PATCH /api/tasks/:id/status` - Update task status
+- `PATCH /api/tasks/:id/assign` - Update task assignment
+
+#### Risk Alerts
+- `GET /api/risks?projectId=:id` - Get active alerts
+- `GET /api/risks/:id` - Get alert by ID
+- `PATCH /api/risks/:id/resolve` - Resolve alert
+
+#### Simulation
+- `POST /api/simulation/run` - Run failure simulation
+
+#### AI
+- `POST /api/ai/recovery` - Get AI recovery recommendations
+
+### Socket.io Events
+
+#### Client → Server
+- `project:join` - Join project room
+- `project:leave` - Leave project room
+
+#### Server → Client
+- `score:updated` - Reliability score updated
+- `simulation:completed` - Simulation completed
+- `risk:created` - Risk alert created
+- `risk:resolved` - Risk alert resolved
+- `task:updated` - Task updated
+
+### Code Quality
+
+Run linter:
+```bash
+npm run lint
+```
+
+Fix linting issues:
+```bash
+npm run lint:fix
+```
+
+### Testing
+
+Run tests:
+```bash
+npm test
+```
+
+Run tests in watch mode:
+```bash
+npm run test:watch
+```
 
 ## Project Structure
 
 ```
 Backend/
 ├── src/
-│   ├── controllers/      # Route handlers (placeholder for future implementation)
-│   ├── db/              # Database connection configuration
-│   │   └── index.js     # MongoDB connection setup
-│   ├── middlewares/     # Express middleware functions
-│   │   ├── auth.middleware.js      # JWT authentication middleware
-│   │   ├── error.middleware.js     # Centralized error handling
-│   │   └── multer.middleware.js    # File upload configuration
-│   ├── models/          # Mongoose schemas (placeholder for future implementation)
-│   ├── routes/          # API route definitions (placeholder for future implementation)
-│   ├── utils/           # Utility functions and helpers
-│   │   ├── apiError.js         # Custom error class for API errors
-│   │   ├── apiResponse.js      # Standardized API response class
-│   │   ├── asyncHandler.js     # Async error handling wrapper
-│   │   ├── cloudinary.js       # Cloudinary upload utility
-│   │   ├── deleteFromCloudinary.js  # Cloudinary deletion utility
-│   │   ├── extractPublicId.js  # Extract Cloudinary public ID
-│   │   └── validateEnv.js      # Environment variable validation
-│   ├── app.js           # Express app configuration and middleware setup
-│   ├── constants.js     # Application constants
-│   └── index.js         # Application entry point
-├── public/
-│   └── temp/            # Temporary storage for file uploads before Cloudinary
-├── .env                 # Environment variables (not tracked in git)
+│   ├── config/          # Configuration files (socket, etc.)
+│   ├── controllers/     # Request handlers
+│   ├── db/              # Database connection and seeding
+│   ├── middlewares/     # Express middlewares
+│   ├── models/          # Mongoose models
+│   ├── routes/          # API routes
+│   ├── services/        # Business logic
+│   ├── utils/           # Utility functions
+│   ├── app.js           # Express app setup
+│   └── index.js         # Entry point
 ├── .env.example         # Environment variables template
 ├── .eslintrc.json       # ESLint configuration
-├── .gitignore          # Git ignore rules
-├── package.json        # Project dependencies and scripts
-└── README.md           # This file
+└── package.json         # Dependencies and scripts
 ```
 
-### Folder Descriptions
+## Reliability Score Calculation
 
-- **controllers/** - Empty placeholder for future route handler implementations
-- **db/** - Database connection logic using Mongoose
-- **middlewares/** - Express middleware for authentication, error handling, and file uploads
-- **models/** - Empty placeholder for future Mongoose schema definitions
-- **routes/** - Empty placeholder for future API route definitions
-- **utils/** - Reusable utility functions for error handling, API responses, file uploads, and validation
-- **public/temp/** - Temporary directory for file uploads before they're uploaded to Cloudinary
+The reliability score (0-100) is calculated using four weighted metrics:
 
+- **Blocker Frequency** (20%): Percentage of blocked tasks
+- **Stagnation Rate** (15%): Percentage of tasks not updated in 48+ hours
+- **Velocity Variance** (25%): Inconsistency in task completion rates
+- **Overload Ratio** (20%): Percentage of team members with >5 active tasks
 
-## Architecture
+Formula:
+```
+score = 100 - (blockerFreq × 20) - (stagnation × 15) - (velocity × 25) - (overload × 20)
+```
 
-This application follows the **MVC (Model-View-Controller)** architectural pattern:
-
-- **Models** - Define data structure and business logic (to be implemented in `models/`)
-- **Views** - Handled by the frontend React application
-- **Controllers** - Handle HTTP requests and responses (to be implemented in `controllers/`)
-- **Routes** - Define API endpoints and map them to controllers (to be implemented in `routes/`)
-
-### Current Implementation Status
-
-The backend is currently in a foundational state with core infrastructure in place:
-
-✅ **Implemented:**
-- Express server setup with middleware configuration
-- MongoDB database connection
-- Environment variable validation
-- JWT authentication middleware structure
-- File upload handling with Multer and Cloudinary
-- Centralized error handling
-- Utility functions for API responses and async operations
-
-🚧 **Placeholder Folders (For Future Implementation):**
-- `controllers/` - Route handlers will be added here as features are developed
-- `models/` - Mongoose schemas will be defined here (e.g., User, Post, etc.)
-- `routes/` - API route definitions will be added here
-
-### Important Notes
-
-1. **User Model Reference**: The `auth.middleware.js` file imports a `User` model from `models/user.model.js`, which doesn't exist yet. This is intentional and represents a placeholder for future implementation. The authentication middleware is ready to use once the User model is created.
-
-2. **Extensibility**: The current structure is designed to be easily extended. When adding new features:
-   - Create Mongoose schemas in `models/`
-   - Implement route handlers in `controllers/`
-   - Define API endpoints in `routes/`
-   - Import and use routes in `app.js`
-
-3. **Error Handling**: All async route handlers should be wrapped with the `asyncHandler` utility to ensure errors are properly caught and forwarded to the error handling middleware.
-
-
-## API Documentation
-
-API endpoints will be documented here as they are implemented. 
-
-### Future Documentation
-
-For comprehensive API documentation, we recommend using one of the following tools:
-
-- **Swagger/OpenAPI** - Industry-standard API documentation with interactive testing
-- **Postman Collections** - Shareable API collections with examples
-- **API Blueprint** - Markdown-based API documentation
-
-### Planned Endpoints
-
-API routes will be organized by resource type (e.g., `/api/users`, `/api/posts`, etc.) and will follow RESTful conventions.
-
-## Contributing
-
-When adding new features or endpoints:
-
-1. Create necessary models in `src/models/`
-2. Implement controllers in `src/controllers/`
-3. Define routes in `src/routes/`
-4. Update this README with new API endpoints
-5. Ensure all code passes ESLint checks (`npm run lint`)
-6. Test thoroughly before committing
+Risk alerts are automatically generated when the score falls below 65.
 
 ## License
 
 ISC
-

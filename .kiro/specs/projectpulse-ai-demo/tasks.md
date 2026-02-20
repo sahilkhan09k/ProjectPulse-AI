@@ -703,8 +703,8 @@ The implementation uses Node.js/Express for the backend, React/Vite for the fron
 
 ### Phase 11: Seed Data
 
-- [ ] 51. Implement database seeder
-  - [ ] 51.1 Create seeder script
+- [x] 51. Implement database seeder
+  - [x] 51.1 Create seeder script
     - Create seed.js in src/db/seed.js
     - Implement idempotency check (only seed if database is empty)
     - Create 6 users with hashed passwords (all with password "Demo123!")
@@ -712,14 +712,14 @@ The implementation uses Node.js/Express for the backend, React/Vite for the fron
     - Create 30 tasks with specific distribution
     - _Requirements: 9.1, 9.2, 9.3, 9.8_
   
-  - [ ] 51.2 Configure task distribution for target score
+  - [x] 51.2 Configure task distribution for target score
     - Set 5 tasks to status "blocked" (16.7% blocker frequency)
     - Set 3 tasks with updatedAt 72 hours ago (10% stagnation rate)
     - Assign 8 active tasks to one user and 6 to another (33% overload ratio)
     - Distribute completed tasks across weeks to create velocity variance
     - _Requirements: 9.4, 9.5, 9.6, 9.7_
   
-  - [ ] 51.3 Verify seed data produces target score
+  - [x] 51.3 Verify seed data produces target score
     - Calculate reliability score after seeding
     - Verify score is between 65 and 70
     - Log final score and metrics
@@ -737,7 +737,7 @@ The implementation uses Node.js/Express for the backend, React/Vite for the fron
     - **Property 31: Seeder Executes Only on Empty Database**
     - **Validates: Requirements 9.8**
 
-- [ ] 52. Add seed command to package.json
+- [x] 52. Add seed command to package.json
   - Add "seed" script to run seeder
   - Add instructions to README for running seeder
   - Test seeder execution
