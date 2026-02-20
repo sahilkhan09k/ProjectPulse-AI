@@ -95,8 +95,8 @@ function TaskList({ projectId }) {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <div className="flex items-center justify-between mb-4">
+    <div className="bg-white rounded-lg shadow h-full flex flex-col">
+      <div className="flex items-center justify-between p-6 border-b border-gray-200">
         <h3 className="text-lg font-semibold text-gray-900">Tasks</h3>
         <div className="flex items-center space-x-4">
           {/* Filter */}
@@ -127,18 +127,15 @@ function TaskList({ projectId }) {
       {sortedTasks.length === 0 ? (
         <div className="text-center py-8 text-gray-500">No tasks found</div>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="overflow-auto flex-1" style={{ maxHeight: 'calc(100vh - 300px)' }}>
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 sticky top-0">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Title
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Assignee
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Due Date
@@ -151,16 +148,13 @@ function TaskList({ projectId }) {
             <tbody className="bg-white divide-y divide-gray-200">
               {sortedTasks.map((task) => (
                 <tr key={task._id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4">
                     <div className="text-sm font-medium text-gray-900">{task.title}</div>
                     {task.description && (
                       <div className="text-sm text-gray-500 truncate max-w-xs">{task.description}</div>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(task.status)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {task.assigneeId?.name || 'Unassigned'}
-                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(task.dueDate).toLocaleDateString()}
                   </td>

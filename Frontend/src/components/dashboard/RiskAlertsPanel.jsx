@@ -78,8 +78,8 @@ function RiskAlertsPanel({ projectId }) {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <div className="flex items-center justify-between mb-4">
+    <div className="bg-white rounded-lg shadow h-full flex flex-col">
+      <div className="flex items-center justify-between p-6 border-b border-gray-200">
         <h3 className="text-lg font-semibold text-gray-900">Risk Alerts</h3>
         {alerts.length > 0 && (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
@@ -99,7 +99,7 @@ function RiskAlertsPanel({ projectId }) {
           <p className="text-xs text-gray-400 mt-1">Your project is healthy!</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="overflow-auto flex-1 p-6 space-y-3" style={{ maxHeight: 'calc(100vh - 300px)' }}>
           <AnimatePresence>
             {alerts.map((alert) => (
               <RiskAlertCard

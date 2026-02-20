@@ -180,12 +180,12 @@ function DashboardPage() {
                 <ReliabilityScoreCard score={project.reliabilityScore} />
               </div>
               <MetricsGrid metrics={project.healthMetrics} />
+              <WorkloadSummary projectId={project._id} />
             </div>
 
-            {/* Middle Column - Alerts and Workload */}
-            <div className="lg:col-span-1 space-y-6">
+            {/* Middle Column - Alerts */}
+            <div className="lg:col-span-1">
               <RiskAlertsPanel projectId={project._id} />
-              <WorkloadSummary projectId={project._id} />
             </div>
 
             {/* Right Column - Tasks */}
