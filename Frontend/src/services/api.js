@@ -10,8 +10,58 @@ const api = axios.create({
   }
 });
 
-// Note: Authorization header is now added by AuthContext interceptors
-// Token refresh is also handled by AuthContext
+// Request interceptor to add Authorization header
+api.interceptors.request.use(
+  (config) => {
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Response interceptor for automatic token refresh
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        const refreshToken = localStorage.getItem('refreshToken');
+        
+        if (!refreshToken) {
+          window.location.href = '/login';
+          return Promise.reject(error);
+        }
+
+        const response = await axios.post(`${API_URL}/auth/refresh`, {
+          refreshToken
+        });
+
+        if (response.data.success) {
+          const { accessToken: newAccess, refreshToken: newRefresh } = response.data.data;
+          localStorage.setItem('accessToken', newAccess);
+          localStorage.setItem('refreshToken', newRefresh);
+          
+          originalRequest.headers.Authorization = `Bearer ${newAccess}`;
+          return api(originalRequest);
+        }
+      } catch (refreshError) {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        window.location.href = '/login';
+        return Promise.reject(refreshError);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+)
 
 // Auth API
 export const authAPI = {
