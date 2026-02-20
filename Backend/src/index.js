@@ -1,7 +1,10 @@
 const dotenv = require("dotenv");
+const http = require("http");
 const connectDB = require("./db/index");
 const { app } = require("./app");
 const { validateEnv } = require("./utils/validateEnv");
+const { initializeSocket } = require("./config/socket");
+const socketService = require("./services/socket.service");
 
 // Load environment variables
 dotenv.config({
@@ -10,6 +13,18 @@ dotenv.config({
 
 // Validate environment variables
 validateEnv();
+
+// Create HTTP server
+const server = http.createServer(app);
+
+// Initialize Socket.io
+const io = initializeSocket(server);
+
+// Initialize socket service
+socketService.initialize(io);
+
+// Make io accessible to the app
+app.set('io', io);
 
 // Connect to database and start server
 connectDB()
@@ -20,9 +35,10 @@ connectDB()
             console.error("Express app error:", err);
         });
 
-        const server = app.listen(port, () => {
+        server.listen(port, () => {
             console.log(`✅ Server running on port ${port}`);
             console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
+            console.log(`🔌 Socket.io initialized`);
         });
 
         // Graceful shutdown

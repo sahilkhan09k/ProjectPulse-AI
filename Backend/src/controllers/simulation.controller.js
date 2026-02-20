@@ -51,6 +51,14 @@ const runSimulation = asyncHandler(async (req, res) => {
     recommendations: aiRecommendations
   };
   
+  // Broadcast simulation result via Socket.io
+  try {
+    const socketService = require('../services/socket.service');
+    socketService.broadcastSimulationResult(projectId, response);
+  } catch (error) {
+    console.error('Error broadcasting simulation result:', error.message);
+  }
+  
   res.status(200).json(
     new ApiResponse(200, response, 'Simulation completed successfully')
   );

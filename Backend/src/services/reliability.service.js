@@ -185,6 +185,14 @@ const calculateReliabilityScore = async (projectId) => {
   const riskService = require('./risk.service');
   await riskService.checkAndCreateAlerts(projectId, finalScore, project.healthMetrics);
   
+  // Broadcast score update via Socket.io
+  try {
+    const socketService = require('./socket.service');
+    socketService.broadcastScoreUpdate(projectId, finalScore, project.healthMetrics);
+  } catch (error) {
+    console.error('Error broadcasting score update:', error.message);
+  }
+  
   return finalScore;
 };
 

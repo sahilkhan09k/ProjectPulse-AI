@@ -364,23 +364,23 @@ The implementation uses Node.js/Express for the backend, React/Vite for the fron
 
 ### Phase 6: Socket.io Real-Time Updates
 
-- [ ] 22. Set up Socket.io server and authentication
-  - [ ] 22.1 Configure Socket.io server
+- [x] 22. Set up Socket.io server and authentication
+  - [x] 22.1 Configure Socket.io server
     - Create Socket.io configuration in src/config/socket.js
     - Initialize Socket.io with Express server
     - Configure CORS for frontend origin
     - Set up connection event handlers
     - _Requirements: 8.6_
   
-  - [ ] 22.2 Implement Socket.io JWT authentication
+  - [x] 22.2 Implement Socket.io JWT authentication
     - Add authentication middleware for socket connections
     - Verify JWT token from handshake.auth.token
     - Attach userId to socket object
     - Close connection on authentication failure
     - _Requirements: 1.5, 8.6_
 
-- [ ] 23. Implement real-time service and event broadcasting
-  - [ ] 23.1 Create real-time service
+- [x] 23. Implement real-time service and event broadcasting
+  - [x] 23.1 Create real-time service
     - Implement SocketService class in src/services/socket.service.js
     - Add project:join and project:leave event handlers for room management
     - Implement broadcastScoreUpdate method
@@ -393,7 +393,7 @@ The implementation uses Node.js/Express for the backend, React/Vite for the fron
     - **Property 30: Real-Time Broadcasts to All Clients**
     - **Validates: Requirements 8.1, 8.2, 8.3, 8.5**
   
-  - [ ] 23.3 Integrate real-time broadcasts with services
+  - [x] 23.3 Integrate real-time broadcasts with services
     - Call broadcastScoreUpdate after reliability score recalculation
     - Call broadcastSimulationResult after simulation completion
     - Call broadcastRiskAlert when alerts are created or resolved

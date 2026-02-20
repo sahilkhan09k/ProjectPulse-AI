@@ -47,7 +47,7 @@ const checkAndCreateAlerts = async (projectId, reliabilityScore, metrics) => {
     
     if (!existingAlert) {
       // Create new alert
-      await RiskAlert.create({
+      const alert = await RiskAlert.create({
         projectId,
         type: reliabilityScore < 50 ? 'critical' : 'warning',
         reason: reasons.join('; '),
@@ -55,16 +55,43 @@ const checkAndCreateAlerts = async (projectId, reliabilityScore, metrics) => {
         recommendedAction: 'Run failure simulation for recovery recommendations',
         resolved: false
       });
+      
+      // Broadcast risk alert created via Socket.io
+      try {
+        const socketService = require('./socket.service');
+        socketService.broadcastRiskAlertCreated(projectId, alert);
+      } catch (error) {
+        console.error('Error broadcasting risk alert created:', error.message);
+      }
     }
   } else {
     // Resolve existing alerts when score is healthy
-    await RiskAlert.updateMany(
+    const resolvedAlerts = await RiskAlert.updateMany(
       { projectId, resolved: false },
       { 
         resolved: true, 
         resolvedAt: new Date() 
       }
     );
+    
+    // Broadcast risk alert resolved via Socket.io
+    if (resolvedAlerts.modifiedCount > 0) {
+      try {
+        const socketService = require('./socket.service');
+        // Get the resolved alert IDs
+        const alerts = await RiskAlert.find({ 
+          projectId, 
+          resolved: true,
+          resolvedAt: { $ne: null }
+        }).sort({ resolvedAt: -1 }).limit(resolvedAlerts.modifiedCount);
+        
+        alerts.forEach(alert => {
+          socketService.broadcastRiskAlertResolved(projectId, alert._id.toString());
+        });
+      } catch (error) {
+        console.error('Error broadcasting risk alert resolved:', error.message);
+      }
+    }
   }
 };
 
