@@ -5,35 +5,13 @@ const API_URL = import.meta.env.VITE_API_URL;
 // Create axios instance with default config
 const api = axios.create({
   baseURL: API_URL,
-  withCredentials: true, // Important for HTTP-only cookies
   headers: {
     'Content-Type': 'application/json'
   }
 });
 
-// Response interceptor to handle 401 errors
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-
-    // If 401 and not already retried, try to refresh token
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      try {
-        await axios.post(`${API_URL}/auth/refresh`, {}, { withCredentials: true });
-        return api(originalRequest);
-      } catch (refreshError) {
-        // Refresh failed, redirect to login
-        window.location.href = '/login';
-        return Promise.reject(refreshError);
-      }
-    }
-
-    return Promise.reject(error);
-  }
-);
+// Note: Authorization header is now added by AuthContext interceptors
+// Token refresh is also handled by AuthContext
 
 // Auth API
 export const authAPI = {

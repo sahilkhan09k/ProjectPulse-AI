@@ -3,11 +3,18 @@ const ApiError = require("../utils/apiError");
 const asyncHandler = require("../utils/asyncHandler");
 const jwt = require("jsonwebtoken");
 
-// Verify JWT access token from HTTP-only cookie
+// Verify JWT access token from Authorization header
 const verifyJwt = asyncHandler(async (req, _res, next) => {
   try {
-    // Get access token from HTTP-only cookie
-    const token = req.cookies?.accessToken;
+    // Get access token from Authorization header
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new ApiError(401, "Access token is required. Please login.");
+    }
+
+    // Extract token from "Bearer <token>" format
+    const token = authHeader.substring(7);
 
     if (!token) {
       throw new ApiError(401, "Access token is required. Please login.");

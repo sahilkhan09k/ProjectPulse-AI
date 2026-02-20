@@ -9,12 +9,12 @@ export const SocketContext = createContext(null);
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [connected, setConnected] = useState(false);
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, accessToken } = useAuth();
   const socketRef = useRef(null);
 
   useEffect(() => {
-    // Only connect if user is authenticated
-    if (!isAuthenticated || !user) {
+    // Only connect if user is authenticated and has access token
+    if (!isAuthenticated || !user || !accessToken) {
       // Disconnect if socket exists
       if (socketRef.current) {
         socketRef.current.disconnect();
@@ -25,10 +25,11 @@ export const SocketProvider = ({ children }) => {
       return;
     }
 
-    // Create socket connection with JWT authentication
-    // Note: Backend expects token from cookies, not auth object
+    // Create socket connection with JWT authentication via auth object
     const newSocket = io(SOCKET_URL, {
-      withCredentials: true,
+      auth: {
+        token: accessToken
+      },
       transports: ['websocket', 'polling']
     });
 
@@ -57,7 +58,7 @@ export const SocketProvider = ({ children }) => {
         newSocket.disconnect();
       }
     };
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, accessToken]);
 
   const joinProjectRoom = useCallback((projectId) => {
     if (socket && connected) {
