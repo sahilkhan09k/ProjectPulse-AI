@@ -19,3 +19,7 @@ yarn-error.log*
 .env
 .env.local
 .env.*.local
+
+# Local documentation (not for GitHub)
+Readme.md
+ProjectPulseAI_20Day_Plan.docx
