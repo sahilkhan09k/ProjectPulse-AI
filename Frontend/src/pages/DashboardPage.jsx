@@ -7,11 +7,13 @@ import MetricsGrid from '../components/dashboard/MetricsGrid';
 import RiskAlertsPanel from '../components/dashboard/RiskAlertsPanel';
 import WorkloadSummary from '../components/dashboard/WorkloadSummary';
 import TaskList from '../components/dashboard/TaskList';
+import SimulationModal from '../components/simulation/SimulationModal';
 
 function DashboardPage() {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isSimulationOpen, setIsSimulationOpen] = useState(false);
   const { socket, connected, joinProjectRoom, leaveProjectRoom } = useSocket();
 
   useEffect(() => {
@@ -144,6 +146,24 @@ function DashboardPage() {
           </div>
         </div>
       </main>
+
+      {/* Simulation Button - Fixed Bottom Right */}
+      <button
+        onClick={() => setIsSimulationOpen(true)}
+        className="fixed bottom-6 right-6 px-6 py-3 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 hover:shadow-xl transition-all duration-200 flex items-center space-x-2 z-40"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        <span className="font-medium">Simulate Failure</span>
+      </button>
+
+      {/* Simulation Modal */}
+      <SimulationModal
+        isOpen={isSimulationOpen}
+        onClose={() => setIsSimulationOpen(false)}
+        project={project}
+      />
     </div>
   );
 }
