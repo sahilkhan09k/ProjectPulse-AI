@@ -19,7 +19,21 @@ const initializeSocket = (server) => {
   // Authentication middleware
   io.use((socket, next) => {
     try {
-      const token = socket.handshake.auth.token;
+      // Get token from cookies (sent automatically with Socket.io handshake)
+      const cookies = socket.handshake.headers.cookie;
+      
+      if (!cookies) {
+        return next(new Error('Authentication error: No cookies found'));
+      }
+
+      // Parse cookies to extract accessToken
+      const cookieObj = {};
+      cookies.split(';').forEach(cookie => {
+        const [key, value] = cookie.trim().split('=');
+        cookieObj[key] = value;
+      });
+
+      const token = cookieObj.accessToken;
 
       if (!token) {
         return next(new Error('Authentication error: Token required'));
